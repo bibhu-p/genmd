@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+
+# Astro build output
+dist/
+.astro/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+bun-debug.log*
+
+# Package manager files
+# Keep the lockfile used by the project tracked.
+# Do not ignore package-lock.json, pnpm-lock.yaml, yarn.lock, or bun.lockb.
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Test artifacts
+playwright-report/
+test-results/
+blob-report/
+
+# TypeScript build artifacts
+*.tsbuildinfo
+
+# Editor and IDE files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# OS-generated files
+Thumbs.db
+ehthumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+
+# Local project notes and generated artifacts
+# Uncomment if these are generated locally and should not be committed:
+# .local/
+# generated/
