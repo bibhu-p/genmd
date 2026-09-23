@@ -94,7 +94,7 @@ Pages are built as `/<route>/index.html`, which every static host above serves w
 
 ### SEO
 
-The production URL is set as `site` in `astro.config.ts` (currently `https://genmd.netlify.app`). Change it if you deploy elsewhere: canonical links, Open Graph and Twitter preview URLs, `sitemap.xml` and the sitemap line in `robots.txt` are all built from it. If `site` is removed, those URL-based tags are skipped and the sitemap is published empty.
+The production URL is set as `site` in `astro.config.ts` (currently `https://genmd01.netlify.app`). Change it if you deploy elsewhere: canonical links, Open Graph and Twitter preview URLs, `sitemap.xml` and the sitemap line in `robots.txt` are all built from it. If `site` is removed, those URL-based tags are skipped and the sitemap is published empty.
 
 - Page titles, descriptions and social tags are set per page through `BaseLayout` props.
 - The home page includes `WebApplication` and `FAQPage` structured data (JSON-LD).
