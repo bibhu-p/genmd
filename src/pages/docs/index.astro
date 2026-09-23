@@ -1,92 +1,44 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { STEPS } from '../../data/steps';
-import { PERMISSION_CATEGORIES, POLICY_OPTIONS } from '../../data/rules';
+import { getEntry, render } from 'astro:content';
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { DOCS_INDEX_ID, docHref, groupBySection } from '../../lib/docs-nav';
+import { getSortedDocs } from '../../lib/docs';
+
+const entry = await getEntry('docs', DOCS_INDEX_ID);
+if (!entry) throw new Error('Missing src/content/docs/index.md');
+
+const docs = await getSortedDocs();
+const { Content, headings } = await render(entry);
+// Guide cards come from the collection, so they always match the pages that exist.
+const guideGroups = groupBySection(docs.filter((doc) => doc.id !== DOCS_INDEX_ID));
 ---
 
-<BaseLayout
-  title="How It Works"
-  description="How GenMD Studio builds a CLAUDE.md for Claude Code, what each command permission policy means, and how your answers stay in your browser."
->
-  <article class="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-    <h1 class="text-3xl font-bold tracking-tight">How GenMD Studio works</h1>
-    <p class="mt-4 text-lg text-ink-muted">
-      <code class="font-mono">CLAUDE.md</code> is a file Claude Code reads at the start of a session to
-      learn about your project and how you want it to work. GenMD Studio builds one from your answers to a
-      short questionnaire.
-    </p>
+<DocsLayout entry={entry} headings={headings} docs={docs}>
+  <Content />
 
-    <section aria-labelledby="steps-heading" class="mt-12">
-      <h2 id="steps-heading" class="text-xl font-bold">The six steps</h2>
-      <ol class="mt-4 space-y-3">
-        {
-          STEPS.map((step, index) => (
-            <li class="flex gap-3">
-              <span class="font-semibold text-accent">{index + 1}.</span>
-              <span>
-                <strong class="font-semibold">{step.title}:</strong>{' '}
-                <span class="text-ink-muted">{step.summary}</span>
-              </span>
-            </li>
-          ))
-        }
-      </ol>
-    </section>
-
-    <section aria-labelledby="permissions-heading" class="mt-12">
-      <h2 id="permissions-heading" class="text-xl font-bold">Command permissions</h2>
-      <p class="mt-3 text-ink-muted">For each category of command, choose one policy:</p>
-      <dl class="mt-4 space-y-2">
-        {
-          POLICY_OPTIONS.map((policy) => (
-            <div>
-              <dt class="inline font-semibold">{policy.label}:</dt>{' '}
-              <dd class="inline text-ink-muted">{policy.description}</dd>
-            </div>
-          ))
-        }
-      </dl>
-
-      <h3 class="mt-6 font-semibold">Categories</h3>
-      <ul class="mt-3 space-y-3">
-        {
-          PERMISSION_CATEGORIES.map((category) => (
-            <li>
-              <strong class="font-semibold">{category.label}.</strong>{' '}
-              <span class="text-ink-muted">{category.description}</span>
-              <span class="block text-sm text-ink-subtle">
-                Examples: <code class="font-mono">{category.examples}</code>
-              </span>
-            </li>
-          ))
-        }
-      </ul>
-
-      <div class="mt-6 rounded-lg border-l-4 border-warn bg-warn-soft p-4" role="note">
-        <p class="font-semibold text-warn-ink">Guidance, not enforcement</p>
-        <p class="mt-1 text-sm text-warn-ink">
-          The permission rules in CLAUDE.md describe how you want Claude to behave. They do not technically
-          block any command. To enforce them, configure Claude Code's permission settings as well (for
-          example, the <code class="font-mono">permissions</code> section of <code class="font-mono">.claude/settings.json</code>).
-        </p>
-      </div>
-    </section>
-
-    <section aria-labelledby="privacy-heading" class="mt-12">
-      <h2 id="privacy-heading" class="text-xl font-bold">Privacy</h2>
-      <p class="mt-3 text-ink-muted">
-        GenMD Studio runs entirely in your browser. Your answers are kept in memory only: they are not uploaded,
-        stored or shared, and they are cleared when you close or reload the page.
-      </p>
-    </section>
-
-    <section aria-labelledby="limitations-heading" class="mt-12">
-      <h2 id="limitations-heading" class="text-xl font-bold">Limitations</h2>
-      <ul class="mt-3 list-disc space-y-2 pl-5 text-ink-muted">
-        <li>Output is built from templates. GenMD Studio does not read or analyse your codebase.</li>
-        <li>Answers are not saved between visits. Download your file before leaving the page.</li>
-        <li>Review the generated file before using it, and adjust anything that does not fit your project.</li>
-      </ul>
-    </section>
-  </article>
-</BaseLayout>
+  <section slot="after" aria-labelledby="guides-heading" class="mt-12">
+    <h2 id="guides-heading" class="text-2xl font-bold tracking-tight">All guides</h2>
+    <div class="mt-6 space-y-8">
+      {
+        guideGroups.map((group) => (
+          <div>
+            <h3 class="text-sm font-semibold tracking-wider text-ink-subtle uppercase">{group.label}</h3>
+            <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+              {group.entries.map((doc) => (
+                <li>
+                  <a
+                    href={docHref(doc.id)}
+                    class="group block h-full rounded-xl border border-line bg-surface p-4 transition-colors hover:border-line-strong hover:bg-subtle"
+                  >
+                    <span class="font-semibold group-hover:text-accent">{doc.data.title}</span>
+                    <span class="mt-1 block text-sm text-ink-muted">{doc.data.description}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</DocsLayout>

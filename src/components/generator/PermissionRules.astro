@@ -28,7 +28,14 @@ const { state } = Astro.props;
     </dl>
     <p class="mt-3 text-ink-muted">
       These rules describe how you want Claude to behave. They do not technically block commands. To
-      enforce them, also configure Claude Code's permission settings.
+      enforce them, also configure Claude Code's permission settings.{' '}
+      {/* New tab: leaving the page would lose the questionnaire answers. */}
+      <a
+        href="/docs/permissions/#from-claudemd-to-enforced-rules"
+        target="_blank"
+        rel="noopener"
+        class="font-medium text-accent underline underline-offset-2"
+      >How to enforce these rules<span class="sr-only"> (opens in a new tab)</span></a>
     </p>
   </div>
 

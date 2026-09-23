@@ -28,7 +28,9 @@ const currentPath = stripSlash(Astro.url.pathname);
         <ul class="flex items-center gap-1">
           {
             links.map(({ href, label }) => {
-              const isCurrent = currentPath === stripSlash(href);
+              // Section links stay highlighted on their sub-pages (for example /docs/hooks/).
+              const base = stripSlash(href);
+              const isCurrent = currentPath === base || currentPath.startsWith(`${base}/`);
               return (
                 <li>
                   <a

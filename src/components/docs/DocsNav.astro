@@ -1,0 +1,42 @@
+---
+import { docHref, type DocGroup } from '../../lib/docs-nav';
+import type { DocEntry } from '../../lib/docs';
+
+interface Props {
+  groups: DocGroup<DocEntry>[];
+  currentId: string;
+}
+
+const { groups, currentId } = Astro.props;
+---
+
+<div class="space-y-6">
+  {
+    groups.map((group) => (
+      <div>
+        <p class="px-3 text-xs font-semibold tracking-wider text-ink-subtle uppercase">{group.label}</p>
+        <ul class="mt-2 space-y-0.5">
+          {group.entries.map((entry) => {
+            const isCurrent = entry.id === currentId;
+            return (
+              <li>
+                <a
+                  href={docHref(entry.id)}
+                  aria-current={isCurrent ? 'page' : undefined}
+                  class:list={[
+                    'block rounded-lg px-3 py-1.5 text-sm transition-colors',
+                    isCurrent
+                      ? 'bg-accent-soft font-semibold text-accent'
+                      : 'text-ink-muted hover:bg-subtle hover:text-ink',
+                  ]}
+                >
+                  {entry.data.title}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))
+  }
+</div>

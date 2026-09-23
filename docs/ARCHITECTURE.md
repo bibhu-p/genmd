@@ -4,7 +4,7 @@ This document records the main design decisions behind GenMD Studio and how the 
 
 ## Overview
 
-GenMD Studio is a static Astro site with three pages. The landing and docs pages are pure HTML and CSS (plus a small theme-toggle script). The generator page adds one bundled TypeScript module that drives the questionnaire and produces the Markdown.
+GenMD Studio is a static Astro site: a landing page, the generator and a multi-page docs section. The landing and docs pages are static HTML and CSS, plus small scripts for the theme toggle and, in the docs, copy buttons and the "On this page" highlight. The generator page adds one bundled TypeScript module that drives the questionnaire and produces the Markdown.
 
 ```text
                  ┌──────────────────────── browser ────────────────────────┐
@@ -71,6 +71,15 @@ Keeping these separate means the generator never deals with raw form quirks, and
 - **The preview** uses markdown-it with `html: false` (raw HTML is escaped), its built-in link validation (rejects `javascript:` and similar), and images disabled (no network requests). The parser is dynamically imported, so its roughly 40 KB (gzipped) only loads when the preview is first opened.
 - Copy uses the Clipboard API, falling back to selecting the text with instructions. Download uses a `Blob` and a temporary object URL.
 
+## Docs
+
+- **Content collection.** Each page is a Markdown file in `src/content/docs/`, loaded with Astro's `glob` loader. `src/content.config.ts` validates the frontmatter (title, description length, section, order, sources, last-checked date), so a malformed page fails the build instead of rendering badly.
+- **Routing.** `src/pages/docs/index.astro` renders the landing page (`index.md`) plus an "All guides" grid built from the collection. `src/pages/docs/[...slug].astro` renders every other page; the file path becomes the URL.
+- **Navigation.** `lib/docs-nav.ts` sorts pages by section (defined in `data/docs-sections.ts`) and `order`, groups them for the sidebar and finds previous/next pages. It has no `astro:content` import so it can be unit-tested; `lib/docs.ts` is the thin wrapper that loads the collection.
+- **Layout.** `layouts/DocsLayout.astro` provides the sidebar (a collapsible menu on mobile), breadcrumbs, the "On this page" list with scroll highlighting, the sources box and previous/next links. It also adds a Copy button to every code block.
+- **Code highlighting.** Shiki (built into Astro) emits both GitHub light and dark colours as CSS variables (`defaultColor: false`), and `global.css` picks one from `data-theme`, so code follows the site theme without re-rendering.
+- **Accuracy.** Pages are written in our own words, checked against the official Claude Code documentation, and list their sources with a last-checked date, because Claude Code changes often.
+
 ## Styling and theming
 
 - Tailwind CSS 4 with design tokens in `src/styles/global.css`. Components use semantic colour tokens (`canvas`, `surface`, `ink`, `line`, `accent`, `danger`...) rather than raw palette colours, and the dark theme redefines those tokens under `[data-theme="dark"]`. The `dark:` variant follows the same attribute.
@@ -94,3 +103,13 @@ ProjectConfig ──► generateClaudeMd ──► Markdown ──► (optional)
 - Make refinement opt-in, with a clear notice about what is sent, and show the result as a proposed change the user can accept or discard.
 
 Because the generator is a pure function with no UI coupling, this can be added without touching the questionnaire or section code.
+
+
+## Rules builder (future idea)
+
+A possible follow-up, not part of the MVP: a form-driven builder that generates `.claude/rules/<topic>.md` files, starting with the rule file guides already in the docs.
+
+- **Templates as data.** Each rule type (design guide, API conventions, testing strategy...) would be a typed definition in `src/data/`: its fields (text, lists, colour lists, choices, file patterns) and the Markdown it produces. Adding a rule type means adding data, not code.
+- **One form engine.** A single component would render any template's fields, adding a repeatable-row control for lists such as colours or rules.
+- **Pure generator functions,** mirroring `generateClaudeMd`: they build the `paths:` frontmatter (quoting glob patterns so the YAML stays valid) and the sections, and are unit-tested.
+- **Reuse.** The existing output panel (edit, preview, copy, download) would take a per-template filename, and the pages would be static routes generated from the template list.
