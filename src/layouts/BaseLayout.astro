@@ -6,7 +6,7 @@ import SiteFooter from '../components/layout/SiteFooter.astro';
 interface Props {
   title: string;
   description: string;
-  /** Use `title` as the full document title instead of appending "| GenMD". */
+  /** Use `title` as the full document title instead of appending "| GenMD Studio". */
   fullTitle?: boolean;
   /** Social preview image, relative to the site root. */
   image?: string;
@@ -22,12 +22,12 @@ const {
   description,
   fullTitle = false,
   image = '/og-image.png',
-  imageAlt = 'GenMD: tell Claude how your project works. Answer six questions and get a ready-to-use CLAUDE.md.',
+  imageAlt = 'GenMD Studio: tell Claude how your project works. Answer six questions and get a ready-to-use CLAUDE.md.',
   noindex = false,
   structuredData,
 } = Astro.props;
 
-const SITE_NAME = 'GenMD';
+const SITE_NAME = 'GenMD Studio';
 const pageTitle = fullTitle ? title : `${title} | ${SITE_NAME}`;
 
 // Absolute URLs need `site` in astro.config.ts; without it, URL-based tags are skipped.

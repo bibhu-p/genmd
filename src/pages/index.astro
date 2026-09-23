@@ -40,7 +40,7 @@ const faqs = [
   {
     question: 'Is anything I type sent to a server?',
     answer:
-      'No. GenMD is a static site. Your answers stay in the page, generation happens in your browser, and nothing is stored after you leave.',
+      'No. GenMD Studio is a static site. Your answers stay in the page, generation happens in your browser, and nothing is stored after you leave.',
   },
   {
     question: 'Can I change the result?',
@@ -59,7 +59,7 @@ const structuredData = [
   {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: 'GenMD',
+    name: 'GenMD Studio',
     description: DESCRIPTION,
     ...(siteUrl && { url: siteUrl }),
     applicationCategory: 'DeveloperApplication',
@@ -81,7 +81,7 @@ const structuredData = [
 ---
 
 <BaseLayout
-  title="GenMD: Free CLAUDE.md Generator for Claude Code"
+  title="GenMD Studio: Free CLAUDE.md Generator for Claude Code"
   fullTitle
   description={DESCRIPTION}
   structuredData={structuredData}

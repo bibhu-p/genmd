@@ -1,6 +1,6 @@
-# GenMD
+# GenMD Studio
 
-GenMD is a static web app that helps developers write a project-specific `CLAUDE.md` for [Claude Code](https://claude.com/claude-code). A six-step questionnaire collects your project details, stack, coding preferences, command permissions and verification rules, then generates a structured Markdown file you can edit, preview, copy and download.
+GenMD Studio is a static web app that helps developers write a project-specific `CLAUDE.md` for [Claude Code](https://claude.com/claude-code). A six-step questionnaire collects your project details, stack, coding preferences, command permissions and verification rules, then generates a structured Markdown file you can edit, preview, copy and download.
 
 Everything runs in the browser. There is no backend, no account and no AI API: generation is template-based and deterministic.
 
@@ -94,7 +94,7 @@ Pages are built as `/<route>/index.html`, which every static host above serves w
 
 ### SEO
 
-The production URL is set as `site` in `astro.config.ts` (currently `https://genmd01.netlify.app`). Change it if you deploy elsewhere: canonical links, Open Graph and Twitter preview URLs, `sitemap.xml` and the sitemap line in `robots.txt` are all built from it. If `site` is removed, those URL-based tags are skipped and the sitemap is published empty.
+The production URL is set as `site` in `astro.config.ts` (currently `https://genmdstudio.netlify.app`). Change it if you deploy elsewhere: canonical links, Open Graph and Twitter preview URLs, `sitemap.xml` and the sitemap line in `robots.txt` are all built from it. If `site` is removed, those URL-based tags are skipped and the sitemap is published empty.
 
 - Page titles, descriptions and social tags are set per page through `BaseLayout` props.
 - The home page includes `WebApplication` and `FAQPage` structured data (JSON-LD).
@@ -106,7 +106,7 @@ The production URL is set as `site` in `astro.config.ts` (currently `https://gen
 
 - **No persistence.** Answers live in memory only and are lost on reload. Download the file before leaving the page.
 - **Guidance, not enforcement.** The generated permission rules tell Claude how to behave; they do not block commands. Real enforcement needs Claude Code's permission settings.
-- **Template-based output.** GenMD does not read your codebase, so architecture guidance is general rather than project-specific.
+- **Template-based output.** GenMD Studio does not read your codebase, so architecture guidance is general rather than project-specific.
 - **Dropdown styling varies by browser.** The closed state is styled everywhere. The open list is fully styled only in browsers that support customizable selects (`appearance: base-select`, currently Chromium-based); Firefox and Safari show their native list.
 - **Language filtering is limited to listed languages.** Choosing "Other" as the language shows every framework and tool.
 - **English only.**

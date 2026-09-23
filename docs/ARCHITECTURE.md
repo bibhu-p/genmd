@@ -1,10 +1,10 @@
 # Architecture
 
-This document records the main design decisions behind GenMD and how the code is organised. For setup and usage, see the [README](../README.md).
+This document records the main design decisions behind GenMD Studio and how the code is organised. For setup and usage, see the [README](../README.md).
 
 ## Overview
 
-GenMD is a static Astro site with three pages. The landing and docs pages are pure HTML and CSS (plus a small theme-toggle script). The generator page adds one bundled TypeScript module that drives the questionnaire and produces the Markdown.
+GenMD Studio is a static Astro site with three pages. The landing and docs pages are pure HTML and CSS (plus a small theme-toggle script). The generator page adds one bundled TypeScript module that drives the questionnaire and produces the Markdown.
 
 ```text
                  ┌──────────────────────── browser ────────────────────────┐
