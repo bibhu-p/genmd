@@ -1,0 +1,106 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Use `title` as the full document title instead of appending "| GenMD". */
+  fullTitle?: boolean;
+  /** Social preview image, relative to the site root. */
+  image?: string;
+  imageAlt?: string;
+  /** Keep the page out of search results (for example the 404 page). */
+  noindex?: boolean;
+  /** schema.org JSON-LD object(s) for this page. */
+  structuredData?: object | object[];
+}
+
+const {
+  title,
+  description,
+  fullTitle = false,
+  image = '/og-image.png',
+  imageAlt = 'GenMD: tell Claude how your project works. Answer six questions and get a ready-to-use CLAUDE.md.',
+  noindex = false,
+  structuredData,
+} = Astro.props;
+
+const SITE_NAME = 'GenMD';
+const pageTitle = fullTitle ? title : `${title} | ${SITE_NAME}`;
+
+// Absolute URLs need `site` in astro.config.ts; without it, URL-based tags are skipped.
+const site = Astro.site;
+const canonicalUrl = site ? new URL(Astro.url.pathname, site).href : undefined;
+const imageUrl = site ? new URL(image, site).href : undefined;
+
+// Escape "<" so JSON-LD content can never close the script element early.
+const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, '\\u003c') : undefined;
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
+    {canonicalUrl && !noindex && <link rel="canonical" href={canonicalUrl} />}
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#4f46e5" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {site && <link rel="sitemap" href="/sitemap.xml" />}
+
+    <!-- Open Graph and Twitter / X link previews -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+    {
+      imageUrl && (
+        <>
+          <meta property="og:image" content={imageUrl} />
+          <meta property="og:image:type" content="image/png" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content={imageAlt} />
+        </>
+      )
+    }
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    {imageUrl && <meta name="twitter:image" content={imageUrl} />}
+    {imageUrl && <meta name="twitter:image:alt" content={imageAlt} />}
+
+    {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+
+    <!-- Apply the saved theme before first paint to avoid a flash. Light is the default. -->
+    <script is:inline>
+      try {
+        if (localStorage.getItem('genmd-theme') === 'dark') document.documentElement.dataset.theme = 'dark';
+      } catch {
+        /* Storage unavailable: keep the light theme. */
+      }
+    </script>
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-surface focus:px-4 focus:py-2 focus:font-semibold focus:text-accent focus:shadow-lg"
+    >
+      Skip to main content
+    </a>
+    <SiteHeader />
+    <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>

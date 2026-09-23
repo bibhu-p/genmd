@@ -1,0 +1,48 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+// Theme-aware copy of public/genmd.svg: background removed, navy letters use currentColor.
+import GenmdLogo from '../../assets/genmd-logo.svg';
+
+const links = [
+  { href: '/generator/', label: 'Generator' },
+  { href: '/docs/', label: 'Docs' },
+];
+
+const stripSlash = (path: string) => path.replace(/\/+$/, '') || '/';
+const currentPath = stripSlash(Astro.url.pathname);
+---
+
+<header class="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur">
+  <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+    <a href="/" class="flex items-center text-[#0c1b2e] dark:text-ink" aria-label="GenMD home">
+      <GenmdLogo aria-hidden="true" class="h-7 w-auto" />
+    </a>
+    <div class="flex items-center gap-1 sm:gap-2">
+      <nav aria-label="Main">
+        <ul class="flex items-center gap-1">
+          {
+            links.map(({ href, label }) => {
+              const isCurrent = currentPath === stripSlash(href);
+              return (
+                <li>
+                  <a
+                    href={href}
+                    aria-current={isCurrent ? 'page' : undefined}
+                    class:list={[
+                      'rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-subtle hover:text-ink',
+                      isCurrent ? 'bg-subtle text-ink' : 'text-ink-muted',
+                    ]}
+                  >
+                    {label}
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+      <span aria-hidden="true" class="mx-1 hidden h-5 w-px bg-line sm:block"></span>
+      <ThemeToggle />
+    </div>
+  </div>
+</header>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The document-and-brackets mark from the GenMD logo, in the logo's colours. -->
+  <path d="M8 1.5h12.5l8 8V26a4.5 4.5 0 0 1-4.5 4.5H8A4.5 4.5 0 0 1 3.5 26V6A4.5 4.5 0 0 1 8 1.5Z" fill="#3F57F7"/>
+  <path d="M20.5 1.5V7a2.5 2.5 0 0 0 2.5 2.5h5.5Z" fill="#B4B8FB"/>
+  <path d="M12.5 13.5 9 17l3.5 3.5M19.5 13.5 23 17l-3.5 3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
