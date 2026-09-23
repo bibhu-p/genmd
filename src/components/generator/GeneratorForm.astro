@@ -1,0 +1,53 @@
+---
+import Button from '../ui/Button.astro';
+import DevelopmentRules from './DevelopmentRules.astro';
+import PermissionRules from './PermissionRules.astro';
+import ProjectBasics from './ProjectBasics.astro';
+import ReviewStep from './ReviewStep.astro';
+import StepProgress from './StepProgress.astro';
+import TechnologyStack from './TechnologyStack.astro';
+import TestingRules from './TestingRules.astro';
+import { createDefaultFormState } from '../../data/defaults';
+
+const state = createDefaultFormState();
+---
+
+<noscript>
+  <p class="mb-8 rounded-lg border border-warn bg-warn-soft p-4 text-warn-ink">
+    The generator needs JavaScript to run. Please enable it and reload the page.
+  </p>
+</noscript>
+
+<form data-generator novalidate class="lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:items-start lg:gap-10">
+  <StepProgress />
+
+  <div class="mt-6 rounded-2xl border border-line bg-surface p-5 shadow-sm sm:p-8 lg:mt-0">
+    <ProjectBasics state={state} />
+    <TechnologyStack state={state} />
+    <DevelopmentRules state={state} />
+    <PermissionRules state={state} />
+    <TestingRules state={state} />
+    <ReviewStep state={state} />
+
+    <div class="mt-10 flex flex-wrap items-center gap-3 border-t border-line pt-6">
+      <Button variant="secondary" data-action="back" hidden>
+        <span aria-hidden="true">←</span> Back
+      </Button>
+      <div class="ml-auto flex flex-wrap justify-end gap-3">
+        <Button variant="secondary" data-action="resume" hidden>
+          <span data-resume-label>Return to review</span>
+        </Button>
+        <Button type="submit" data-action="next">
+          <span data-next-label>Next</span> <span aria-hidden="true">→</span>
+        </Button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+  import { initGenerator } from '../../lib/generator/controller';
+
+  const form = document.querySelector('form[data-generator]');
+  if (form instanceof HTMLFormElement) initGenerator(form);
+</script>

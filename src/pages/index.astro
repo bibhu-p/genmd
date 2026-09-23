@@ -1,0 +1,288 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import EditorPreview from '../components/landing/EditorPreview.astro';
+import { STEPS } from '../data/steps';
+import { createSampleFormState } from '../data/sample';
+import { generateClaudeMd } from '../lib/generator/generate';
+import { normalize } from '../lib/generator/normalize';
+
+// Real generator output, rendered at build time, so the example never drifts from the product.
+const sampleOutput = generateClaudeMd(normalize(createSampleFormState()));
+
+const stats = [
+  { value: '6', label: 'short steps' },
+  { value: '~3 min', label: 'start to finish' },
+  { value: '0 bytes', label: 'of your answers uploaded' },
+];
+
+const fileSections = [
+  { title: 'Project Overview', body: 'Description, goals, stage, users and constraints.' },
+  { title: 'Technology Stack', body: 'Language, framework, package manager and tools.' },
+  { title: 'Project Architecture', body: 'Where code belongs and what not to reorganise.' },
+  { title: 'Development Workflow', body: 'Understand, plan, implement, verify, report.' },
+  { title: 'Coding Standards', body: 'General rules, TypeScript, dependencies, accessibility.' },
+  { title: 'Command Permissions', body: 'What Claude may run, must ask about, or must never run.', optional: true },
+  { title: 'Testing and Verification', body: 'Tests, type checks, linting and builds.', optional: true },
+  { title: 'Error Handling and Security', body: 'Secrets, input validation and error messages.' },
+  { title: 'Documentation', body: 'When the README and decision records need updating.', optional: true },
+  { title: 'Scope Management', body: 'Stay on task and ask before expanding scope.' },
+  { title: 'Definition of Done', body: 'A checklist to finish before reporting completion.', optional: true },
+  { title: 'Additional Instructions', body: 'Your own rules, added exactly as written.', optional: true },
+];
+
+const faqs = [
+  {
+    question: 'Does the file enforce command permissions?',
+    answer:
+      'No. CLAUDE.md tells Claude how you want it to behave, and Claude follows it, but it does not technically block commands. For hard limits, also configure Claude Code permission settings.',
+  },
+  {
+    question: 'Is anything I type sent to a server?',
+    answer:
+      'No. GenMD is a static site. Your answers stay in the page, generation happens in your browser, and nothing is stored after you leave.',
+  },
+  {
+    question: 'Can I change the result?',
+    answer:
+      'Yes. The last step gives you an editable file with a live preview. Go back to any step, change an answer and regenerate as often as you like.',
+  },
+];
+
+const DESCRIPTION =
+  'Create a CLAUDE.md for Claude Code in minutes. Answer six questions about your stack, standards and permissions. Free, private and runs in your browser.';
+
+const siteUrl = Astro.site?.href;
+
+// schema.org data: the app itself, plus the FAQ shown on this page.
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'GenMD',
+    description: DESCRIPTION,
+    ...(siteUrl && { url: siteUrl }),
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Any (runs in a web browser)',
+    browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="GenMD: Free CLAUDE.md Generator for Claude Code"
+  fullTitle
+  description={DESCRIPTION}
+  structuredData={structuredData}
+>
+  <!-- Hero -->
+  <section class="relative isolate overflow-hidden border-b border-line">
+    <div aria-hidden="true" class="hero-grid absolute inset-0 -z-10"></div>
+    <div aria-hidden="true" class="hero-glow absolute inset-0 -z-10"></div>
+
+    <div class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:py-24">
+      <div>
+        <p class="inline-flex items-center gap-2 rounded-full border border-line bg-surface/80 px-3 py-1 text-xs font-medium text-ink-muted shadow-xs">
+          <span aria-hidden="true" class="size-1.5 rounded-full bg-success"></span>
+          Free · No sign-up · Runs in your browser
+        </p>
+        <h1 class="mt-6 text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+          Tell Claude how <span class="relative inline-block text-accent">your<svg
+              aria-hidden="true"
+              viewBox="0 0 200 20"
+              preserveAspectRatio="none"
+              class="hand-underline pointer-events-none absolute -bottom-[0.2em] left-[-4%] h-[0.32em] w-[108%] overflow-visible text-orange-500 dark:text-orange-400"
+            >
+              <path d="M4 11 C 45 6, 110 4, 196 8" pathLength="1" vector-effect="non-scaling-stroke"></path>
+              <path d="M10 16 C 70 11, 130 10, 188 13" pathLength="1" vector-effect="non-scaling-stroke"></path>
+            </svg>
+          </span> project works.
+        </h1>
+        <p class="mt-6 max-w-xl text-lg text-ink-muted">
+          Answer a few questions and get a ready-to-use <code class="rounded-md border border-line bg-subtle px-1.5 py-0.5 font-mono text-[0.9em] text-ink">CLAUDE.md</code> for your stack, standards and rules.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <Button href="/generator/" size="lg">
+            Generate your CLAUDE.md <span aria-hidden="true">→</span>
+          </Button>
+          <Button href="#how" variant="secondary" size="lg">How it works</Button>
+        </div>
+        <dl class="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-line pt-6">
+          {
+            stats.map((stat) => (
+              <div class="flex flex-col-reverse justify-end gap-1">
+                <dt class="text-xs text-ink-muted">{stat.label}</dt>
+                <dd class="font-mono text-xl font-semibold tracking-tight">{stat.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+
+      <EditorPreview source={sampleOutput} />
+    </div>
+  </section>
+
+  <!-- From answers to instructions -->
+  <section id="how" aria-labelledby="how-heading" class="scroll-mt-20">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <p class="font-mono text-sm text-accent">## how-it-works</p>
+      <h2 id="how-heading" class="mt-2 text-3xl font-bold tracking-tight">From answers to instructions</h2>
+      <p class="mt-3 max-w-2xl text-ink-muted">
+        Every choice maps to plain rules Claude can follow. No blank page, no guessing what belongs in the file.
+      </p>
+
+      <div class="mt-10 grid gap-5 md:grid-cols-3">
+        <article class="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface">
+          <div class="p-5">
+            <p class="text-sm font-semibold">Package manager</p>
+            <div class="mt-3 flex items-center justify-between rounded-lg border border-line-strong px-3 py-2 text-sm">
+              pnpm
+              <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" class="size-4 text-ink-subtle"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"></path></svg>
+            </div>
+          </div>
+          <pre class="mt-auto border-t border-line bg-subtle p-5 font-mono text-xs leading-relaxed whitespace-pre-wrap text-ink-muted"><span class="text-accent">- **Package manager:**</span> pnpm
+
+Use pnpm for all dependency and
+script commands. Do not switch
+package managers.</pre>
+        </article>
+
+        <article class="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface">
+          <div class="p-5">
+            <p class="text-sm font-semibold">Git commands</p>
+            <div class="mt-3 grid grid-cols-3 gap-1.5 text-center text-xs font-medium">
+              <span class="rounded-md border border-line px-2 py-2 text-ink-muted">Allow</span>
+              <span class="rounded-md border border-brand-500 bg-accent-soft px-2 py-2 text-accent">● Ask first</span>
+              <span class="rounded-md border border-line px-2 py-2 text-ink-muted">Never</span>
+            </div>
+          </div>
+          <pre class="mt-auto border-t border-line bg-subtle p-5 font-mono text-xs leading-relaxed whitespace-pre-wrap text-ink-muted"><span class="text-accent">### Ask first</span>
+
+- Git commands that change the
+  repository or its history, such
+  as `git commit` or `git push`.</pre>
+        </article>
+
+        <article class="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface">
+          <div class="p-5">
+            <p class="text-sm font-semibold">Testing and documentation</p>
+            <ul class="mt-3 space-y-1.5 text-sm">
+              <li class="flex items-center gap-2"><span aria-hidden="true" class="grid size-4 place-items-center rounded bg-brand-600 text-[10px] text-white">✓</span> Type checking</li>
+              <li class="flex items-center gap-2"><span aria-hidden="true" class="grid size-4 place-items-center rounded bg-brand-600 text-[10px] text-white">✓</span> Definition of Done</li>
+            </ul>
+          </div>
+          <pre class="mt-auto border-t border-line bg-subtle p-5 font-mono text-xs leading-relaxed whitespace-pre-wrap text-ink-muted"><span class="text-accent">## Definition of Done</span>
+
+- [ ] Type checking passes.
+- [ ] Results are reported
+      accurately.</pre>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- What goes into the file -->
+  <section aria-labelledby="sections-heading">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <p class="font-mono text-sm text-accent">## whats-inside</p>
+      <h2 id="sections-heading" class="mt-2 text-3xl font-bold tracking-tight">What goes into the file</h2>
+      <p class="mt-3 max-w-2xl text-ink-muted">
+        Up to twelve focused sections. Optional ones appear only when your answers call for them.
+      </p>
+      <ul class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          fileSections.map((section) => (
+            <li class="rounded-xl border border-line bg-surface p-4">
+              <p class="flex items-center justify-between gap-2">
+                <span class="font-semibold">
+                  <span aria-hidden="true" class="font-mono text-accent">## </span>
+                  {section.title}
+                </span>
+                {section.optional && (
+                  <span class="rounded-full border border-line px-2 py-0.5 text-[11px] font-medium text-ink-subtle">
+                    optional
+                  </span>
+                )}
+              </p>
+              <p class="mt-1.5 text-sm text-ink-muted">{section.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Steps -->
+  <section aria-labelledby="steps-heading">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <p class="font-mono text-sm text-accent">## six-steps</p>
+      <h2 id="steps-heading" class="mt-2 text-3xl font-bold tracking-tight">Six steps, about three minutes</h2>
+      <ol class="mt-10 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          STEPS.map((step, index) => (
+            <li class="flex gap-4">
+              <span class="grid size-9 shrink-0 place-items-center rounded-full border-2 border-accent-line font-mono text-sm font-semibold text-accent">
+                {index + 1}
+              </span>
+              <div>
+                <h3 class="font-semibold">{step.title}</h3>
+                <p class="mt-1 text-sm text-ink-muted">{step.summary}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section aria-labelledby="faq-heading" class="border-t border-line">
+    <div class="mx-auto max-w-3xl px-4 py-20 sm:px-6">
+      <h2 id="faq-heading" class="text-3xl font-bold tracking-tight">Questions</h2>
+      <div class="mt-8 divide-y divide-line border-y border-line">
+        {
+          faqs.map((faq) => (
+            <details class="group py-4">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">
+                {faq.question}
+                <span aria-hidden="true" class="font-mono text-xl text-ink-subtle transition-transform group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <p class="mt-3 text-ink-muted">{faq.answer}</p>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Closing call to action -->
+  <section class="px-4 pb-20 sm:px-6">
+    <div class="relative isolate mx-auto max-w-6xl overflow-hidden rounded-3xl bg-brand-700 px-6 py-14 text-center sm:px-12">
+      <div aria-hidden="true" class="hero-grid absolute inset-0 -z-10 opacity-20"></div>
+      <h2 class="text-3xl font-bold tracking-tight text-white text-balance">Give Claude the context it needs.</h2>
+      <p class="mx-auto mt-3 max-w-xl text-brand-100">
+        Answer six questions, review the result, and drop CLAUDE.md into your project root.
+      </p>
+      <a
+        href="/generator/"
+        class="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-semibold text-brand-700 shadow-sm transition-colors hover:bg-brand-50"
+      >
+        Start generating <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

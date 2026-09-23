@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GeneratorForm from '../components/generator/GeneratorForm.astro';
+---
+
+<BaseLayout
+  title="Create Your CLAUDE.md"
+  description="Answer six short questions about your project, stack, coding standards and command permissions, then edit, copy or download a ready-to-use CLAUDE.md file."
+>
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
+    <div class="mb-8 lg:mb-10">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Generate your CLAUDE.md</h1>
+      <p class="mt-2 text-ink-muted">Six short steps. Nothing you enter leaves your browser.</p>
+    </div>
+    <GeneratorForm />
+  </div>
+</BaseLayout>
