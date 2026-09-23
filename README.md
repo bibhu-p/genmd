@@ -13,7 +13,7 @@ Everything runs in the browser. There is no backend, no account and no AI API: g
 - **Conditional output:** optional sections (permissions, testing, documentation, Definition of Done, custom instructions) appear only when your answers call for them.
 - **Editable result:** edit the Markdown directly or switch to a rendered preview. Your edits are never overwritten without confirmation.
 - **Export:** copy to the clipboard or download as `CLAUDE.md`.
-- **Light and dark themes:** light by default, with the choice remembered in `localStorage`.
+- **Light and dark themes:** follows the system setting by default; choosing a theme with the toggle is remembered in `localStorage`.
 - **Accessible:** semantic HTML, labelled controls, keyboard support, visible focus states and reduced-motion support.
 
 ## Technology stack

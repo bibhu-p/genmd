@@ -81,13 +81,27 @@ const jsonLd = structuredData ? JSON.stringify(structuredData).replace(/</g, '\\
 
     {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
 
-    <!-- Apply the saved theme before first paint to avoid a flash. Light is the default. -->
+    <!--
+      Theme before first paint, to avoid a flash: a choice saved with the toggle wins;
+      otherwise follow the system setting, including live changes. Light is the fallback.
+    -->
     <script is:inline>
-      try {
-        if (localStorage.getItem('genmd-theme') === 'dark') document.documentElement.dataset.theme = 'dark';
-      } catch {
-        /* Storage unavailable: keep the light theme. */
-      }
+      (() => {
+        const media = window.matchMedia('(prefers-color-scheme: dark)');
+        const saved = () => {
+          try {
+            const value = localStorage.getItem('genmd-theme');
+            return value === 'dark' || value === 'light' ? value : null;
+          } catch {
+            return null;
+          }
+        };
+        const apply = () => {
+          document.documentElement.dataset.theme = saved() ?? (media.matches ? 'dark' : 'light');
+        };
+        apply();
+        media.addEventListener('change', apply);
+      })();
     </script>
   </head>
   <body class="flex min-h-screen flex-col">

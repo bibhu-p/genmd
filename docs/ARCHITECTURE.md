@@ -74,7 +74,7 @@ Keeping these separate means the generator never deals with raw form quirks, and
 ## Styling and theming
 
 - Tailwind CSS 4 with design tokens in `src/styles/global.css`. Components use semantic colour tokens (`canvas`, `surface`, `ink`, `line`, `accent`, `danger`...) rather than raw palette colours, and the dark theme redefines those tokens under `[data-theme="dark"]`. The `dark:` variant follows the same attribute.
-- An inline script in the layout applies a saved theme before first paint to avoid a flash; light is the default.
+- An inline script in the layout sets the theme before first paint to avoid a flash: a choice saved with the toggle wins, otherwise the system `prefers-color-scheme` setting is followed (including live changes), with light as the fallback.
 - Radios and checkboxes are custom-drawn (with a forced-colors fallback to native controls). Selects use `appearance: base-select` where supported and a styled native control elsewhere.
 
 ## Testing

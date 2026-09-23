@@ -28,6 +28,7 @@
       button.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
     };
 
+    // Clicking saves an explicit choice, which then overrides the system theme.
     button.addEventListener('click', () => {
       const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
       root.dataset.theme = next;
@@ -36,9 +37,10 @@
       } catch {
         // Storage unavailable: the theme still applies for this page view.
       }
-      sync();
     });
 
+    // The theme can also change without a click (system switch), so watch the attribute.
+    new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
     sync();
   });
 </script>
