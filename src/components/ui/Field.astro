@@ -1,0 +1,71 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { errorIdFor, fieldId, hintIdFor } from '../../lib/generator/field-ids';
+import { errorClass, hintClass, inputClass, labelClass, optionalMarkClass } from './styles';
+
+interface Props {
+  name: string;
+  label: string;
+  value?: string;
+  required?: boolean;
+  hint?: string;
+  placeholder?: string;
+  /** Renders a textarea instead of a single-line input. */
+  multiline?: boolean;
+  rows?: number;
+  maxlength?: number;
+  autocomplete?: HTMLAttributes<'input'>['autocomplete'];
+}
+
+const {
+  name,
+  label,
+  value = '',
+  required = false,
+  hint,
+  placeholder,
+  multiline = false,
+  rows = 3,
+  maxlength,
+  autocomplete,
+} = Astro.props;
+
+const id = fieldId(name);
+const describedBy = [hint ? hintIdFor(name) : null, errorIdFor(name)].filter(Boolean).join(' ');
+---
+
+<div>
+  <label for={id} class={labelClass}>
+    {label}
+    {!required && <span class={optionalMarkClass}>{' (optional)'}</span>}
+  </label>
+  {hint && <p id={hintIdFor(name)} class={hintClass}>{hint}</p>}
+  {
+    multiline ? (
+      <textarea
+        id={id}
+        name={name}
+        rows={rows}
+        maxlength={maxlength}
+        placeholder={placeholder}
+        aria-required={required ? 'true' : undefined}
+        aria-describedby={describedBy}
+        class={inputClass}
+      >{value}</textarea>
+    ) : (
+      <input
+        type="text"
+        id={id}
+        name={name}
+        value={value}
+        maxlength={maxlength}
+        placeholder={placeholder}
+        autocomplete={autocomplete}
+        aria-required={required ? 'true' : undefined}
+        aria-describedby={describedBy}
+        class={inputClass}
+      />
+    )
+  }
+  <p id={errorIdFor(name)} class={errorClass} data-field-error hidden></p>
+</div>

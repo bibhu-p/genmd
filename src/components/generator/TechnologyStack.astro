@@ -1,0 +1,94 @@
+---
+import CheckboxGroup from '../ui/CheckboxGroup.astro';
+import Field from '../ui/Field.astro';
+import SelectField from '../ui/SelectField.astro';
+import StepPanel from './StepPanel.astro';
+import {
+  DATABASES,
+  FRAMEWORKS,
+  LANGUAGES,
+  PACKAGE_MANAGERS,
+  PROJECT_TYPES,
+  STYLING_OPTIONS,
+  TESTING_TOOLS,
+} from '../../data/frameworks';
+import { MAX_LENGTH } from '../../lib/generator/validation';
+import type { FormState } from '../../types/generator';
+
+interface Props {
+  state: FormState;
+}
+
+const { state } = Astro.props;
+---
+
+<StepPanel
+  id="stack"
+  description="Only the project type is required. Leave anything that does not apply as Not specified."
+>
+  <SelectField
+    name="projectType"
+    label="Project type"
+    options={PROJECT_TYPES}
+    value={state.projectType}
+    otherValue={state.projectTypeOther}
+    required
+  />
+  <SelectField
+    name="language"
+    label="Primary language"
+    options={LANGUAGES}
+    value={state.language}
+    otherValue={state.languageOther}
+    hint="Choosing a language narrows the framework, package manager and testing options."
+  />
+  <div class="grid gap-8 sm:grid-cols-2">
+    <SelectField
+      name="framework"
+      label="Framework"
+      options={FRAMEWORKS}
+      value={state.framework}
+      otherValue={state.frameworkOther}
+      filterByLanguage
+    />
+    <SelectField
+      name="packageManager"
+      label="Package manager"
+      options={PACKAGE_MANAGERS}
+      value={state.packageManager}
+      otherValue={state.packageManagerOther}
+      filterByLanguage
+    />
+    <SelectField
+      name="database"
+      label="Database"
+      options={DATABASES}
+      value={state.database}
+      otherValue={state.databaseOther}
+      hint="Static sites usually need none."
+    />
+    <SelectField
+      name="styling"
+      label="Styling"
+      options={STYLING_OPTIONS}
+      value={state.styling}
+      otherValue={state.stylingOther}
+    />
+  </div>
+  <CheckboxGroup
+    name="testingTools"
+    legend="Testing tools"
+    options={TESTING_TOOLS}
+    checked={state.testingTools}
+    optional
+    columns={3}
+    filterByLanguage
+  />
+  <Field
+    name="testingToolsOther"
+    label="Other testing tools"
+    value={state.testingToolsOther}
+    maxlength={MAX_LENGTH.shortText}
+    hint="Separate several tools with commas."
+  />
+</StepPanel>

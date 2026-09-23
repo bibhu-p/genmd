@@ -1,0 +1,70 @@
+---
+import CheckboxGroup from '../ui/CheckboxGroup.astro';
+import Field from '../ui/Field.astro';
+import RadioGroup from '../ui/RadioGroup.astro';
+import StepPanel from './StepPanel.astro';
+import {
+  ACCESSIBILITY_OPTIONS,
+  CODING_PREFERENCES,
+  DEPENDENCY_POLICY_OPTIONS,
+  TS_STRICTNESS_OPTIONS,
+} from '../../data/rules';
+import { MAX_LENGTH } from '../../lib/generator/validation';
+import type { FormState } from '../../types/generator';
+
+interface Props {
+  state: FormState;
+}
+
+const { state } = Astro.props;
+
+const preferenceOptions = CODING_PREFERENCES.map((pref) => ({
+  value: pref.id,
+  label: pref.label,
+  description: pref.description,
+}));
+---
+
+<StepPanel
+  id="preferences"
+  description="Sensible defaults are already selected. Change anything that does not match how you work."
+>
+  <CheckboxGroup
+    name="codingPreferences"
+    legend="Coding standards"
+    options={preferenceOptions}
+    checked={state.codingPreferences}
+    optional
+  />
+  <div data-show-when-language="typescript" hidden={state.language !== 'typescript'}>
+    <RadioGroup
+      name="tsStrictness"
+      legend="TypeScript strictness"
+      options={TS_STRICTNESS_OPTIONS}
+      checked={state.tsStrictness}
+      columns={2}
+    />
+  </div>
+  <RadioGroup
+    name="dependencyPolicy"
+    legend="Dependencies"
+    options={DEPENDENCY_POLICY_OPTIONS}
+    checked={state.dependencyPolicy}
+    columns={2}
+  />
+  <RadioGroup
+    name="accessibilityLevel"
+    legend="Accessibility"
+    options={ACCESSIBILITY_OPTIONS}
+    checked={state.accessibilityLevel}
+    columns={3}
+  />
+  <Field
+    name="performanceNotes"
+    label="Performance expectations"
+    value={state.performanceNotes}
+    multiline
+    maxlength={MAX_LENGTH.longText}
+    hint="For example: page weight budgets, response time targets or devices you must support."
+  />
+</StepPanel>

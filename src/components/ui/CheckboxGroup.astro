@@ -1,0 +1,55 @@
+---
+import { errorIdFor, fieldId, hintIdFor } from '../../lib/generator/field-ids';
+import type { StackOption } from '../../types/generator';
+import { choiceCardClass, choiceInputClass, errorClass, hintClass, labelClass, optionalMarkClass } from './styles';
+
+interface Props {
+  name: string;
+  legend: string;
+  options: readonly StackOption[];
+  checked: readonly string[];
+  hint?: string;
+  optional?: boolean;
+  columns?: 1 | 2 | 3;
+  /** Lets the controller hide options that do not apply to the selected language. */
+  filterByLanguage?: boolean;
+}
+
+const { name, legend, options, checked, hint, optional = false, columns = 2, filterByLanguage = false } =
+  Astro.props;
+
+const id = fieldId(name);
+const describedBy = [hint ? hintIdFor(name) : null, errorIdFor(name)].filter(Boolean).join(' ');
+const columnClass = { 1: '', 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3' }[columns];
+---
+
+<fieldset aria-describedby={describedBy} data-filter-by-language={filterByLanguage ? '' : undefined}>
+  <legend class={labelClass}>
+    {legend}
+    {optional && <span class={optionalMarkClass}>{' (optional)'}</span>}
+  </legend>
+  {hint && <p id={hintIdFor(name)} class={hintClass}>{hint}</p>}
+  <ul role="list" class:list={['mt-2 grid gap-2', columnClass]}>
+    {
+      options.map((option) => (
+        <li data-languages={option.languages?.join(' ')}>
+          <label class={choiceCardClass}>
+            <input
+              type="checkbox"
+              id={`${id}-${option.value}`}
+              name={name}
+              value={option.value}
+              checked={checked.includes(option.value)}
+              class={choiceInputClass}
+            />
+            <span>
+              <span class="block text-sm font-medium">{option.label}</span>
+              {option.description && <span class="block text-sm text-ink-muted">{option.description}</span>}
+            </span>
+          </label>
+        </li>
+      ))
+    }
+  </ul>
+  <p id={errorIdFor(name)} class={errorClass} data-field-error hidden></p>
+</fieldset>

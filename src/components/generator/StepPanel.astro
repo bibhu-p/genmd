@@ -1,0 +1,30 @@
+---
+import { STEPS } from '../../data/steps';
+import type { StepId } from '../../types/generator';
+
+interface Props {
+  id: StepId;
+  description: string;
+}
+
+const { id, description } = Astro.props;
+const index = STEPS.findIndex((step) => step.id === id);
+const step = STEPS[index];
+if (!step) throw new Error(`Unknown step: ${id}`);
+
+const headingId = `step-${id}-title`;
+---
+
+<section data-step={id} aria-labelledby={headingId} hidden={index !== 0}>
+  <p class="text-xs font-semibold tracking-wider text-accent uppercase">Step {index + 1} of {STEPS.length}</p>
+  <h2 id={headingId} data-step-heading tabindex="-1" class="mt-2 text-2xl font-bold tracking-tight focus:outline-none">
+    {step.title}
+  </h2>
+  <p class="mt-2 text-ink-muted">{description}</p>
+
+  <div data-error-summary tabindex="-1" hidden class="mt-6 rounded-xl border border-danger bg-danger-soft p-4 focus:outline-none"></div>
+
+  <div class="mt-8 space-y-8">
+    <slot />
+  </div>
+</section>

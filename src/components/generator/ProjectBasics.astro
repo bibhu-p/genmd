@@ -1,0 +1,61 @@
+---
+import Field from '../ui/Field.astro';
+import RadioGroup from '../ui/RadioGroup.astro';
+import StepPanel from './StepPanel.astro';
+import { PROJECT_STAGES } from '../../data/project';
+import { MAX_LENGTH } from '../../lib/generator/validation';
+import type { FormState } from '../../types/generator';
+
+interface Props {
+  state: FormState;
+}
+
+const { state } = Astro.props;
+---
+
+<StepPanel id="basics" description="Tell Claude what it is working on. Fields are required unless marked optional.">
+  <Field
+    name="projectName"
+    label="Project name"
+    value={state.projectName}
+    required
+    maxlength={MAX_LENGTH.projectName}
+    autocomplete="off"
+  />
+  <Field
+    name="description"
+    label="Description"
+    value={state.description}
+    required
+    multiline
+    maxlength={MAX_LENGTH.description}
+    hint="One or two sentences on what the project does."
+  />
+  <Field
+    name="goals"
+    label="Goals"
+    value={state.goals}
+    required
+    multiline
+    rows={4}
+    maxlength={MAX_LENGTH.longText}
+    hint="One goal per line."
+    placeholder={'Ship a working MVP\nKeep the codebase easy to maintain'}
+  />
+  <RadioGroup name="stage" legend="Project stage" options={PROJECT_STAGES} checked={state.stage} columns={3} />
+  <Field
+    name="targetUsers"
+    label="Target users"
+    value={state.targetUsers}
+    maxlength={MAX_LENGTH.shortText}
+    hint="Who will use the project?"
+  />
+  <Field
+    name="constraints"
+    label="Special constraints"
+    value={state.constraints}
+    multiline
+    maxlength={MAX_LENGTH.longText}
+    hint="Deadlines, compliance requirements, hosting limits and so on."
+  />
+</StepPanel>

@@ -1,0 +1,49 @@
+---
+import { errorIdFor, fieldId, hintIdFor } from '../../lib/generator/field-ids';
+import type { SelectOption } from '../../types/generator';
+import { choiceCardClass, choiceInputClass, errorClass, hintClass, labelClass } from './styles';
+
+interface Props {
+  name: string;
+  legend: string;
+  options: readonly SelectOption[];
+  checked: string;
+  hint?: string;
+  showDescriptions?: boolean;
+  columns?: 1 | 2 | 3;
+}
+
+const { name, legend, options, checked, hint, showDescriptions = true, columns = 1 } = Astro.props;
+
+const id = fieldId(name);
+const describedBy = [hint ? hintIdFor(name) : null, errorIdFor(name)].filter(Boolean).join(' ');
+const columnClass = { 1: '', 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3' }[columns];
+---
+
+<fieldset aria-describedby={describedBy}>
+  <legend class={labelClass}>{legend}</legend>
+  {hint && <p id={hintIdFor(name)} class={hintClass}>{hint}</p>}
+  <div class:list={['mt-2 grid gap-2', columnClass]}>
+    {
+      options.map((option) => (
+        <label class={choiceCardClass}>
+          <input
+            type="radio"
+            id={`${id}-${option.value}`}
+            name={name}
+            value={option.value}
+            checked={option.value === checked}
+            class={choiceInputClass}
+          />
+          <span>
+            <span class="block text-sm font-medium">{option.label}</span>
+            {showDescriptions && option.description && (
+              <span class="block text-sm text-ink-muted">{option.description}</span>
+            )}
+          </span>
+        </label>
+      ))
+    }
+  </div>
+  <p id={errorIdFor(name)} class={errorClass} data-field-error hidden></p>
+</fieldset>

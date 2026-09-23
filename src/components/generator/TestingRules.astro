@@ -1,0 +1,23 @@
+---
+import CheckboxGroup from '../ui/CheckboxGroup.astro';
+import StepPanel from './StepPanel.astro';
+import { VERIFICATION_OPTIONS } from '../../data/rules';
+import type { FormState } from '../../types/generator';
+
+interface Props {
+  state: FormState;
+}
+
+const { state } = Astro.props;
+
+const options = VERIFICATION_OPTIONS.map((option) => ({
+  value: option.id,
+  label: option.label,
+  description: option.description,
+}));
+const checked = VERIFICATION_OPTIONS.filter((option) => state.verification[option.id]).map((option) => option.id);
+---
+
+<StepPanel id="verification" description="Choose which checks and documentation rules to include in the file.">
+  <CheckboxGroup name="verification" legend="Include in CLAUDE.md" options={options} checked={checked} optional />
+</StepPanel>
