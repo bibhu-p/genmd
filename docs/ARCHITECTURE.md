@@ -18,11 +18,15 @@ GenMD Studio is a static Astro site: a landing page, the generator and a multi-p
                                                         ▼
                                                   ProjectConfig
                                                         │
+                                         ┌──────────────┴──────────────┐
+                                         ▼                             ▼
+                                 generateClaudeMd            generateSettingsJson
+                                         │                             │
+                                         ▼                             ▼
+                                     CLAUDE.md                   settings.json
+                                         └──────────────┬──────────────┘
                                                         ▼
-                                   generateClaudeMd (section functions)
-                                                        │
-                                                        ▼
-                                  Markdown string ──► editor / preview / copy / download
+                                       editor / preview / copy / download
                  └──────────────────────────────────────────────────────────┘
 ```
 
@@ -52,8 +56,9 @@ Keeping these separate means the generator never deals with raw form quirks, and
 
 - **All steps stay in the DOM.** Steps are shown and hidden with the `hidden` attribute, so input survives navigation without any state syncing. The form itself is the source of truth; state is read with `new FormData(form)` whenever it is needed.
 - **Steps are Astro components** (`src/components/generator/`) built from shared controls in `src/components/ui/`. They render static HTML with ids and `data-*` hooks that follow the conventions in `lib/generator/field-ids.ts`.
-- **`controller.ts`** is the only module that coordinates the page: navigation, the stepper, validation feedback and the review step. DOM details are split into `lib/generator/dom/`: `errors.ts` (inline errors and the error summary), `conditional.ts` ("Other" boxes, language filtering, TypeScript-only questions), `summary-view.ts` and `output.ts`.
+- **`controller.ts`** is the only module that coordinates the page: navigation, the stepper, validation feedback and the review step. DOM details are split into `lib/generator/dom/`: `errors.ts` (inline errors and the error summary), `conditional.ts` ("Other" boxes, language filtering, TypeScript-only questions), `summary-view.ts`, `output.ts`, `preset-picker.ts` and `fill-form.ts`.
 - **Validation** (`validation.ts`) is a pure function per step. Moving forward via the stepper or "Return to review" re-validates every step in between.
+- **Presets** (`data/presets.ts`) are typed `PresetValues` objects limited to steps 2, 3 and 5, so the compiler stops a preset from setting project basics or permissions. `lib/generator/presets.ts` is pure: `applyPreset` resets those steps to the defaults and applies the preset, and `wouldOverwriteChoices` decides when to confirm (only when the user changed something themselves since the defaults or the last preset). `dom/fill-form.ts` writes the result into the form, setting the language first so the language filters run before the dependent selects are set. A `?preset=<id>` query parameter applies a preset on load, which is how the landing page cards link in.
 - **Option data** (`src/data/`) is plain typed arrays. Language-specific options carry a `languages` list, rendered as `data-languages` so filtering needs no data duplication in the client.
 
 ## Markdown generation
@@ -65,8 +70,16 @@ Keeping these separate means the generator never deals with raw form quirks, and
 - **Avoiding duplication:** each rule has one home. For example, the error-handling preference feeds the Error Handling and Security section rather than Coding Standards, and the Definition of Done checklist is built from the same toggles as the testing rules.
 - **User text safety** (`markdown.ts`): one-line values have whitespace collapsed; multi-line values have heading-like lines escaped so they cannot change the document structure; typed list markers on goals are stripped. Custom instructions are inserted verbatim by design.
 
+## settings.json generation
+
+- **Why:** CLAUDE.md can only describe permissions. Claude Code enforces rules from `settings.json`, so `lib/generator/settings.ts` turns the same `ProjectConfig` into `allow`, `ask` and `deny` lists (Allow, Ask first and Never).
+- **Patterns are data.** `data/permission-patterns.ts` holds the shell patterns, keyed by option value: Git commands that change the repository, package manager commands, database clients and framework migration commands, deploy CLIs and publish commands. `ProjectConfig` stores display labels, so the generator maps them back to option values; a choice typed under "Other" has no value and produces no rules.
+- **Consistency with CLAUDE.md:** read-only Git is always allowed and database rules appear only when there is a database, matching the Command Permissions section. Rules that deny reading `.env` files are always added.
+- **One list per rule.** If two categories ever produce the same rule, the stricter policy wins, so the output never contradicts itself. The output is deterministic and ends with the `$schema` URL so editors can validate it.
+
 ## Output panel
 
+- **One module, two files.** `dom/output.ts` sets up an output from options (filename, MIME type, generate function and an optional content check). CLAUDE.md uses Edit/Preview tabs; settings.json sits in a collapsible panel and checks its JSON as the user types, warning without blocking copy or download.
 - The editor is a plain `<textarea>`. It updates automatically until the user edits it; after that, changed answers show an "out of date" notice instead of overwriting, and Regenerate asks for confirmation.
 - **The preview** uses markdown-it with `html: false` (raw HTML is escaped), its built-in link validation (rejects `javascript:` and similar), and images disabled (no network requests). The parser is dynamically imported, so its roughly 40 KB (gzipped) only loads when the preview is first opened.
 - Copy uses the Clipboard API, falling back to selecting the text with instructions. Download uses a `Blob` and a temporary object URL.
@@ -88,7 +101,7 @@ Keeping these separate means the generator never deals with raw form quirks, and
 
 ## Testing
 
-Unit tests in `tests/` cover the pure modules: form parsing, validation, normalization, the review summary and Markdown generation (structure, optional sections, permissions, user-content handling and determinism). DOM behaviour is verified manually in the browser.
+Unit tests in `tests/` cover the pure modules: form parsing, validation, normalization, the review summary, Markdown generation (structure, optional sections, permissions, user-content handling and determinism), settings.json generation (policy mapping, stack-specific commands, no rule in two lists) and presets (every preset uses real options that fit its language, passes validation and keeps basics and permissions). DOM behaviour, including filling the form from a preset, is verified manually in the browser.
 
 ## Adding AI refinement later
 

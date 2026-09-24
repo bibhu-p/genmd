@@ -7,12 +7,14 @@ Everything runs in the browser. There is no backend, no account and no AI API: g
 ## Features
 
 - **Guided questionnaire:** project basics, technology stack, development preferences, command permissions, testing and documentation, then review.
+- **Starter presets:** start from one of eight common stacks (Astro, Next.js, React, Node.js API, FastAPI, Django, Go and Rust), either from Step 1 or with a `/generator/?preset=<id>` link. A preset fills in the stack, preferences and checks, never your project details or permissions.
 - **Smart fields:** "Other" choices reveal a text box, and picking a language narrows the framework, package manager and testing tool options.
 - **Validation:** checks each step before moving on, with an error summary and inline messages linked to each field.
 - **Easy navigation:** answers are kept while you move between steps, completed steps can be revisited from the stepper, and "Return to review" skips back after an edit.
 - **Conditional output:** optional sections (permissions, testing, documentation, Definition of Done, custom instructions) appear only when your answers call for them.
 - **Editable result:** edit the Markdown directly or switch to a rendered preview. Your edits are never overwritten without confirmation.
 - **Export:** copy to the clipboard or download as `CLAUDE.md`.
+- **Enforceable permissions:** an optional `.claude/settings.json` whose `allow`, `ask` and `deny` rules mirror your permission choices, with commands matched to your stack, plus rules that stop Claude reading `.env` files.
 - **Docs:** a multi-page guide to customising Claude Code (CLAUDE.md, rule files, settings and permissions, hooks, skills, subagents and MCP), with copyable templates for common rule files.
 - **Light and dark themes:** follows the system setting by default; choosing a theme with the toggle is remembered in `localStorage`.
 - **Accessible:** semantic HTML, labelled controls, keyboard support, visible focus states and reduced-motion support.
@@ -65,18 +67,19 @@ src/
 ├── content/
 │   └── docs/        # Docs pages as Markdown (one file per page)
 ├── content.config.ts # Docs collection schema
-├── data/            # Option lists, defaults, sample project, generated-file wording, docs sections
+├── data/            # Option lists, presets, defaults, sample project, generated-file wording,
+│                    # settings.json command patterns, docs sections
 ├── layouts/         # Base layout and the docs layout
 ├── lib/
-│   ├── generator/   # Validation, normalization, section generators, controller
-│   │   └── dom/     # DOM-only helpers (errors, conditional fields, output panel)
+│   ├── generator/   # Validation, normalization, section and settings generators, presets, controller
+│   │   └── dom/     # DOM-only helpers (errors, conditional fields, output panels, preset picker)
 │   ├── docs.ts      # Loads docs pages in reading order
 │   ├── docs-nav.ts  # Docs ordering and navigation helpers
 │   ├── download.ts
 │   └── highlight.ts
 ├── pages/           # /, /generator/, /docs/ and /docs/[...slug]
 ├── styles/          # Tailwind entry point, design tokens, docs typography
-└── types/           # Domain types (FormState, ProjectConfig)
+└── types/           # Domain types (FormState, ProjectConfig, Preset)
 tests/               # Vitest unit tests for the pure logic
 docs/ARCHITECTURE.md # Design decisions
 ```
@@ -90,6 +93,8 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the pieces fit together
 3. Check the affected pages in the browser, in both themes and at mobile width.
 
 Generated-file wording lives in `src/data/templates.ts`, so copy changes rarely need logic changes. When you change the wording or section logic, update `tests/generate.test.ts` to match.
+
+The shell commands used in the generated `settings.json` live in `src/data/permission-patterns.ts`, keyed by option value. Presets live in `src/data/presets.ts`; `tests/presets.test.ts` checks that every preset uses real options that fit its language, so a typo fails the tests.
 
 ### Adding or editing a docs page
 
@@ -132,7 +137,8 @@ The production URL is set as `site` in `astro.config.ts` (currently `https://gen
 ## Known limitations
 
 - **No persistence.** Answers live in memory only and are lost on reload. Download the file before leaving the page.
-- **Guidance, not enforcement.** The generated permission rules tell Claude how to behave; they do not block commands. Real enforcement needs Claude Code's permission settings.
+- **CLAUDE.md is guidance, not enforcement.** Its permission rules tell Claude how to behave; they do not block commands. The optional `settings.json` export adds enforcement, but its shell rules match command text, so a command run another way (for example through `bash -c`) can get past them. Tools typed under "Other" get no command rules.
+- **Command lists are curated.** The `settings.json` rules cover common tools for each listed stack and will miss some. Review the file before committing it.
 - **Template-based output.** GenMD Studio does not read your codebase, so architecture guidance is general rather than project-specific.
 - **Dropdown styling varies by browser.** The closed state is styled everywhere. The open list is fully styled only in browsers that support customizable selects (`appearance: base-select`, currently Chromium-based); Firefox and Safari show their native list.
 - **Language filtering is limited to listed languages.** Choosing "Other" as the language shows every framework and tool.
@@ -143,8 +149,6 @@ The production URL is set as `site` in `astro.config.ts` (currently `https://gen
 These are ideas, not commitments, and are out of scope for the MVP:
 
 - **Rules builder:** fill in a form (for example a design guide's colours, typography and spacing) and generate a ready-to-save `.claude/rules/<topic>.md` file, reusing the rule file templates from the docs. See the architecture notes for a sketch.
-- Generate a matching `.claude/settings.json` permissions snippet, so the permission rules can actually be enforced.
 - Save and load answers as a JSON file, or keep an optional local draft.
-- Starter presets (for example "Astro static site" or "Python API").
 - Optional AI-assisted refinement of the generated file (see the architecture notes for how it could be added).
 - End-to-end browser tests for the questionnaire flow.

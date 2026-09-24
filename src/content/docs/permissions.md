@@ -136,6 +136,8 @@ The permission policies in a GenMD Studio `CLAUDE.md` (or any CLAUDE.md) are gui
 | Ask first | `ask` |
 | Never | `deny` |
 
+**GenMD Studio can write this file for you.** On the [generator's](/generator/) review step, open *Enforce these rules with .claude/settings.json* for rules built from your answers, with commands matched to your stack. The template below shows the same idea if you prefer to start by hand.
+
 ### A starting point
 
 A template for a typical JavaScript project. Replace the commands with the ones your project uses and delete what you do not need.

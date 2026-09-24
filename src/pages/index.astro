@@ -36,7 +36,7 @@ const faqs = [
   {
     question: 'Does the file enforce command permissions?',
     answer:
-      'No. CLAUDE.md tells Claude how you want it to behave, and Claude follows it, but it does not technically block commands. For hard limits, also configure Claude Code permission settings.',
+      'Not on its own. CLAUDE.md tells Claude how you want it to behave, and Claude follows it, but it does not technically block commands. For that, the review step also gives you a matching .claude/settings.json whose permission rules Claude Code applies itself.',
   },
   {
     question: 'Is anything I type sent to a server?',
