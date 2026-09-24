@@ -6,6 +6,11 @@ export function labelOf(options: readonly SelectOption[], value: string): string
   return options.find((option) => option.value === value)?.label;
 }
 
+/** The value of the option labelled `label`, or undefined if there is none. */
+export function valueOf(options: readonly SelectOption[], label: string | undefined): string | undefined {
+  return label === undefined ? undefined : options.find((option) => option.label === label)?.value;
+}
+
 /**
  * Resolves a select value to the label the generator should use: the user's
  * text for "Other", undefined for "None" or an empty choice.
