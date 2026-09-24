@@ -6,6 +6,7 @@ import { renderSummary } from './dom/summary-view';
 import { formStateFromData } from './form-data';
 import { generateClaudeMd } from './generate';
 import { normalize } from './normalize';
+import { checkSettingsJson, generateSettingsJson } from './settings';
 import { summarize } from './summary';
 import { validateStep } from './validation';
 
@@ -31,13 +32,29 @@ export function initGenerator(form: HTMLFormElement): void {
   const progressItems = Array.from(form.querySelectorAll<HTMLButtonElement>('[data-progress-item]'));
   const progressStatus = form.querySelector<HTMLElement>('[data-progress-status]');
   const summaryContainer = form.querySelector<HTMLElement>('[data-review-summary]');
-  const outputRoot = form.querySelector<HTMLElement>('[data-output]');
+  const claudeMdRoot = form.querySelector<HTMLElement>('[data-output="claude-md"]');
+  const settingsRoot = form.querySelector<HTMLElement>('[data-output="settings"]');
 
   let current = 0;
   let furthest = 0;
 
   const readState = () => formStateFromData(new FormData(form));
-  const output = outputRoot ? setupOutput(outputRoot, () => generateClaudeMd(normalize(readState()))) : null;
+  const readConfig = () => normalize(readState());
+  const claudeMd = claudeMdRoot
+    ? setupOutput(claudeMdRoot, {
+        filename: 'CLAUDE.md',
+        mimeType: 'text/markdown;charset=utf-8',
+        generate: () => generateClaudeMd(readConfig()),
+      })
+    : null;
+  const settings = settingsRoot
+    ? setupOutput(settingsRoot, {
+        filename: 'settings.json',
+        mimeType: 'application/json;charset=utf-8',
+        generate: () => generateSettingsJson(readConfig()),
+        check: checkSettingsJson,
+      })
+    : null;
 
   function render(): void {
     panels.forEach((panel, index) => {
@@ -69,7 +86,8 @@ export function initGenerator(form: HTMLFormElement): void {
 
     if (current === REVIEW_INDEX) {
       if (summaryContainer) renderSummary(summaryContainer, summarize(readState()));
-      output?.sync();
+      claudeMd?.sync();
+      settings?.sync();
     }
   }
 
@@ -135,7 +153,7 @@ export function initGenerator(form: HTMLFormElement): void {
       if (!target.name) return;
       clearFieldError(form, target.name);
       if (target instanceof HTMLSelectElement) clearFieldError(form, `${target.name}Other`);
-      if (target.name === 'customInstructions') output?.sync();
+      if (target.name === 'customInstructions') claudeMd?.sync();
     }
   };
   form.addEventListener('input', onEdit);

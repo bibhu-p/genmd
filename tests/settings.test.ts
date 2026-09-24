@@ -4,7 +4,7 @@ import { OTHER_VALUE, PACKAGE_MANAGERS } from '../src/data/frameworks';
 import { PACKAGE_MANAGER_PATTERNS, PUBLISH_PATTERNS, SETTINGS_SCHEMA_URL } from '../src/data/permission-patterns';
 import { createSampleFormState } from '../src/data/sample';
 import { normalize } from '../src/lib/generator/normalize';
-import { buildPermissionRules, generateSettingsJson } from '../src/lib/generator/settings';
+import { buildPermissionRules, checkSettingsJson, generateSettingsJson } from '../src/lib/generator/settings';
 import type { FormState, PermissionPolicies } from '../src/types/generator';
 
 const BASE: Partial<FormState> = {
@@ -154,6 +154,22 @@ describe('buildPermissionRules: secrets', () => {
       expect(rules({ permissions: policies(policy) }).deny).toEqual(
         expect.arrayContaining(['Read(./.env)', 'Read(./.env.*)']),
       );
+    }
+  });
+});
+
+describe('checkSettingsJson', () => {
+  it('accepts generated settings', () => {
+    expect(checkSettingsJson(generateSettingsJson(config()))).toBeNull();
+  });
+
+  it('reports invalid JSON', () => {
+    expect(checkSettingsJson('{ "permissions": { "allow": ["Bash(ls *)",] } }')).toMatch(/not valid JSON/);
+  });
+
+  it('reports JSON that is not an object', () => {
+    for (const content of ['[]', '"text"', 'null', '42']) {
+      expect(checkSettingsJson(content), content).toMatch(/must be a JSON object/);
     }
   });
 });

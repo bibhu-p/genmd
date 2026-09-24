@@ -144,7 +144,7 @@ export const PERMISSION_TEXT = {
   noBlanketPermission:
     'A general request to build, fix or finish something is not permission to run every command it might involve.',
   enforcementNote:
-    '> These rules describe the intended workflow. This file does not technically enforce them; use Claude Code permission settings for enforcement.',
+    '> These rules describe the intended workflow. This file does not technically enforce them; matching permission rules in `.claude/settings.json` do.',
 } as const;
 
 export const TESTING_RULES = {

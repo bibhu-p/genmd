@@ -127,3 +127,17 @@ export function generateSettingsJson(config: ProjectConfig): string {
   };
   return `${JSON.stringify({ $schema: SETTINGS_SCHEMA_URL, permissions }, null, 2)}\n`;
 }
+
+/** Describes why edited settings content would not load, or returns null when it is a valid JSON object. */
+export function checkSettingsJson(content: string): string | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    return 'This is not valid JSON, so Claude Code will not be able to read it. Check for missing commas, quotes or brackets.';
+  }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    return 'Settings must be a JSON object, starting with { and ending with }.';
+  }
+  return null;
+}

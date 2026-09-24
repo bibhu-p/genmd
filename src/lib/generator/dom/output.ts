@@ -5,22 +5,31 @@ export interface OutputView {
   sync(): void;
 }
 
+export interface OutputOptions {
+  filename: string;
+  mimeType: string;
+  generate: () => string;
+  /** Returns a problem with the content, or null. Shown as a warning; copy and download still work. */
+  check?: (content: string) => string | null;
+}
+
 type Tone = 'success' | 'error';
 type Renderer = (source: string) => string;
 
-const FILENAME = 'CLAUDE.md';
-
 /**
- * Wires up the editable output: Edit/Preview tabs, copy, download and
- * regenerate. User edits are never overwritten without confirmation.
+ * Wires up one editable output file: copy, download, regenerate and, when the
+ * markup includes them, Edit/Preview tabs and a content warning. User edits
+ * are never overwritten without confirmation.
  */
-export function setupOutput(root: HTMLElement, generate: () => string): OutputView {
+export function setupOutput(root: HTMLElement, options: OutputOptions): OutputView {
+  const { filename, mimeType, generate, check } = options;
   const editor = root.querySelector<HTMLTextAreaElement>('[data-output-editor]');
   const preview = root.querySelector<HTMLElement>('[data-output-preview]');
   const status = root.querySelector<HTMLElement>('[data-output-status]');
   const staleNotice = root.querySelector<HTMLElement>('[data-stale-notice]');
+  const warning = root.querySelector<HTMLElement>('[data-output-warning]');
   const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
-  if (!editor || !preview || !status || !staleNotice) return { sync: () => {} };
+  if (!editor || !status || !staleNotice) return { sync: () => {} };
 
   let lastGenerated = '';
   let renderer: Renderer | null = null;
@@ -32,27 +41,36 @@ export function setupOutput(root: HTMLElement, generate: () => string): OutputVi
     status!.dataset.tone = tone;
   }
 
+  function checkContent(): void {
+    if (!check || !warning) return;
+    const problem = editor!.value.trim() ? check(editor!.value) : null;
+    warning.textContent = problem ?? '';
+    warning.hidden = problem === null;
+  }
+
   async function renderPreview(): Promise<void> {
+    if (!preview) return;
     try {
       renderer ??= (await import('../markdown-preview')).renderMarkdown;
       // Safe: the renderer escapes raw HTML and rejects unsafe links.
-      preview!.innerHTML = renderer(editor!.value);
+      preview.innerHTML = renderer(editor!.value);
     } catch {
-      preview!.textContent = 'The preview could not be loaded. Check your connection and try again.';
+      preview.textContent = 'The preview could not be loaded. Check your connection and try again.';
     }
   }
 
-  function apply(markdown: string): void {
-    editor!.value = markdown;
-    lastGenerated = markdown;
+  function apply(content: string): void {
+    editor!.value = content;
+    lastGenerated = content;
     staleNotice!.hidden = true;
-    if (!preview!.hidden) void renderPreview();
+    checkContent();
+    if (preview && !preview.hidden) void renderPreview();
   }
 
   function sync(): void {
-    const markdown = generate();
-    if (!isEdited()) apply(markdown);
-    else staleNotice!.hidden = markdown === lastGenerated;
+    const content = generate();
+    if (!isEdited()) apply(content);
+    else staleNotice!.hidden = content === lastGenerated;
   }
 
   function regenerate(): void {
@@ -94,9 +112,11 @@ export function setupOutput(root: HTMLElement, generate: () => string): OutputVi
       announce('There is nothing to download yet.', 'error');
       return;
     }
-    downloadTextFile(FILENAME, editor!.value);
-    announce(`Downloaded ${FILENAME}.`);
+    downloadTextFile(filename, editor!.value, mimeType);
+    announce(`Downloaded ${filename}.`);
   }
+
+  editor.addEventListener('input', checkContent);
 
   tabs.forEach((tab, index) => {
     tab.addEventListener('click', () => selectTab(tab.dataset.tab ?? 'edit'));
