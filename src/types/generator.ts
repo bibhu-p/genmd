@@ -156,3 +156,38 @@ export interface FormState {
   // Step 6: review
   customInstructions: string;
 }
+
+// ---------------------------------------------------------------------------
+// Starter presets
+// ---------------------------------------------------------------------------
+
+/**
+ * Fields a preset may set: the stack, development preferences and checks.
+ * Project basics and command permissions always stay the user's choice, and
+ * presets never use "Other", so the free-text fields are left out.
+ */
+export type PresetValues = Partial<
+  Pick<
+    FormState,
+    | 'projectType'
+    | 'language'
+    | 'framework'
+    | 'packageManager'
+    | 'database'
+    | 'styling'
+    | 'testingTools'
+    | 'codingPreferences'
+    | 'tsStrictness'
+    | 'dependencyPolicy'
+    | 'accessibilityLevel'
+    | 'verification'
+  >
+>;
+
+export interface Preset {
+  /** URL-safe, used in `?preset=`. */
+  id: string;
+  label: string;
+  description: string;
+  values: PresetValues;
+}
