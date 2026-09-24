@@ -1,6 +1,7 @@
 ---
 import Field from '../ui/Field.astro';
 import RadioGroup from '../ui/RadioGroup.astro';
+import PresetPicker from './PresetPicker.astro';
 import StepPanel from './StepPanel.astro';
 import { PROJECT_STAGES } from '../../data/project';
 import { MAX_LENGTH } from '../../lib/generator/validation';
@@ -14,6 +15,7 @@ const { state } = Astro.props;
 ---
 
 <StepPanel id="basics" description="Tell Claude what it is working on. Fields are required unless marked optional.">
+  <PresetPicker />
   <Field
     name="projectName"
     label="Project name"

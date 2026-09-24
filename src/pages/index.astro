@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/ui/Button.astro';
 import EditorPreview from '../components/landing/EditorPreview.astro';
+import { PRESETS } from '../data/presets';
 import { STEPS } from '../data/steps';
 import { createSampleFormState } from '../data/sample';
 import { generateClaudeMd } from '../lib/generator/generate';
@@ -190,6 +191,38 @@ package managers.</pre>
       accurately.</pre>
         </article>
       </div>
+    </div>
+  </section>
+
+  <!-- Starter presets -->
+  <section aria-labelledby="presets-heading">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <p class="font-mono text-sm text-accent">## starting-points</p>
+      <h2 id="presets-heading" class="mt-2 text-3xl font-bold tracking-tight">Popular starting points</h2>
+      <p class="mt-3 max-w-2xl text-ink-muted">
+        Start from a common stack and the generator fills in the technical steps for you. Change anything you like
+        before you generate.
+      </p>
+      <ul class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          PRESETS.map((preset) => (
+            <li>
+              <a
+                href={`/generator/?preset=${preset.id}`}
+                class="group flex h-full flex-col rounded-xl border border-line bg-surface p-4 transition-colors hover:border-brand-500 focus-visible:border-brand-500 focus-visible:ring-4 focus-visible:ring-brand-500/25 focus-visible:outline-none"
+              >
+                <span class="flex items-center justify-between gap-2 font-semibold">
+                  {preset.label}
+                  <span aria-hidden="true" class="text-ink-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-accent">
+                    →
+                  </span>
+                </span>
+                <span class="mt-1.5 text-sm text-ink-muted">{preset.description}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 

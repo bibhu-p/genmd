@@ -33,7 +33,7 @@ function copyField<K extends keyof FormState>(target: FormState, source: FormSta
 }
 
 /** Returns `state` with every field a preset controls set back to its default. */
-function resetPresetFields(state: FormState): FormState {
+export function resetPresetFields(state: FormState): FormState {
   const defaults = createDefaultFormState();
   const next = { ...state };
   for (const field of PRESET_FIELDS) copyField(next, defaults, field);

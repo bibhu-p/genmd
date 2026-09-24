@@ -2,6 +2,7 @@ import { STEPS } from '../../data/steps';
 import { setupConditionalFields } from './dom/conditional';
 import { clearFieldError, clearStepErrors, showStepErrors } from './dom/errors';
 import { setupOutput } from './dom/output';
+import { setupPresetPicker } from './dom/preset-picker';
 import { renderSummary } from './dom/summary-view';
 import { formStateFromData } from './form-data';
 import { generateClaudeMd } from './generate';
@@ -160,5 +161,7 @@ export function initGenerator(form: HTMLFormElement): void {
   form.addEventListener('change', onEdit);
 
   setupConditionalFields(form);
+  // After the conditional fields, so a preset from the URL updates the filtered options.
+  setupPresetPicker(form, readState);
   render();
 }
